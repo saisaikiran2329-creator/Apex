@@ -1,0 +1,8 @@
+node_modules/
+.netlify/
+__pycache__/
+*.py[cod]
+.env
+.env.*
+!.env.example
+desktop.ini

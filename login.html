@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Login page for APEX WORKFORCE PRIVATE LIMITED.">
+  <title>Login | APEX WORKFORCE PRIVATE LIMITED</title>
+  <link rel="stylesheet" href="styles.css?v=full-brand-logo-2">
+</head>
+<body class="login-page">
+  <header>
+    <div class="container nav">
+      <a class="logo" href="index.html"><img class="logo-image" src="apex-workforce-logo.png" alt="APEX WORKFORCE — Your People. Our Priority."></a>
+    </div>
+  </header>
+
+  <main>
+    <section class="application-page">
+      <div class="container">
+        <div class="application-card">
+          <h1>Login</h1>
+          <p class="application-intro">Enter your account details to continue.</p>
+
+          <form class="login-form" id="login-form">
+            <div class="application-field">
+              <label for="login-email">Email</label>
+              <input id="login-email" name="email" type="email" autocomplete="username" required>
+            </div>
+
+            <div class="application-field">
+              <label for="login-password">Password</label>
+              <input id="login-password" name="password" type="password" autocomplete="current-password" required>
+            </div>
+
+            <button class="btn btn-primary" type="submit">Login</button>
+            <p class="login-notice" id="login-notice" role="status" aria-live="polite">Sign-in is checked by the website server.</p>
+            <a class="application-back" href="index.html">Back to home</a>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const loginForm = document.getElementById('login-form');
+    const loginNotice = document.getElementById('login-notice');
+
+    loginForm.addEventListener('submit', async event => {
+      event.preventDefault();
+      const submitButton = loginForm.querySelector('button[type="submit"]');
+      submitButton.disabled = true;
+      loginNotice.textContent = 'Checking login...';
+
+      try {
+        const response = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams(new FormData(loginForm))
+        });
+        if (!response.headers.get('content-type')?.includes('application/json')) {
+          loginNotice.textContent = 'Login is unavailable because the hosted login service is not configured. Please try again later.';
+          return;
+        }
+        const result = await response.json();
+        if (response.ok && result.authenticated) {
+          window.location.assign('/login-success.html');
+        } else if (response.status === 401) {
+          loginNotice.textContent = 'Email or password incorrect. Please check both and try again.';
+        } else {
+          loginNotice.textContent = result.error || 'The login service could not complete the request. Please try again later.';
+        }
+      } catch {
+        loginNotice.textContent = 'Login is unavailable because the hosted login service could not be reached. Please try again later.';
+      } finally {
+        submitButton.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

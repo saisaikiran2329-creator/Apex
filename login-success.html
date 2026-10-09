@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Login successful for APEX WORKFORCE PRIVATE LIMITED.">
+  <title>Login Successful | APEX WORKFORCE PRIVATE LIMITED</title>
+  <link rel="stylesheet" href="styles.css?v=full-brand-logo-2">
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <a class="logo" href="index.html"><img class="logo-image" src="apex-workforce-logo.png" alt="APEX WORKFORCE — Your People. Our Priority."></a>
+    </div>
+  </header>
+
+  <main>
+    <section class="application-page">
+      <div class="container">
+        <div class="application-card success-card">
+          <div class="success-mark" aria-hidden="true">✓</div>
+          <h1>Login successful</h1>
+          <p class="application-intro">You are signed in. You can now create and publish job openings on the website.</p>
+          <div class="application-actions">
+            <a class="btn btn-primary" href="post-jobs.html">Post a job</a>
+            <a class="application-back" href="index.html">Back to website</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script>
+    fetch('/api/session', { cache: 'no-store' })
+      .then(response => {
+        if (!response.ok) {
+          window.location.replace('/login.html');
+        }
+      })
+      .catch(() => window.location.replace('/login.html'));
+  </script>
+</body>
+</html>

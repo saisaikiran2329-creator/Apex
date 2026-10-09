@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Full job description and application details.">
+  <title>Job Details | APEX WORKFORCE PRIVATE LIMITED</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main>
+    <section class="application-page">
+      <div class="container">
+        <article class="application-card job-details-card" id="job-details" aria-live="polite">
+          <p class="application-intro">Loading job details...</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const detailsCard = document.getElementById('job-details');
+    const params = new URLSearchParams(window.location.search);
+    const jobId = params.get('job');
+    const isDemo = params.get('demo') === '1';
+    const googleFormUrl = 'https://docs.google.com/forms/d/e/1FAIpQLScOJ9iFkrCJjBdXoUGdXW5IWV3EHqAWihxUT9FLdrEkm3GxSg/viewform?usp=publish-editor';
+
+    function showUnavailable(message) {
+      detailsCard.replaceChildren();
+      const heading = document.createElement('h1');
+      heading.textContent = 'Job unavailable';
+      const description = document.createElement('p');
+      description.className = 'application-intro';
+      description.textContent = message;
+      const backLink = document.createElement('a');
+      backLink.className = 'application-back';
+      backLink.href = 'jobs.html';
+      backLink.textContent = 'Back to job search';
+      detailsCard.append(heading, description, backLink);
+    }
+
+    function renderJob(job, demo) {
+      detailsCard.replaceChildren();
+
+      if (demo) {
+        const badge = document.createElement('span');
+        badge.className = 'demo-job-badge';
+        badge.textContent = 'SAMPLE JOB · EXAMPLE ONLY';
+        detailsCard.append(badge);
+      }
+
+      const title = document.createElement('h1');
+      title.textContent = job.title;
+      const metadata = document.createElement('p');
+      metadata.className = 'posted-job-details';
+      metadata.textContent = `${job.location} · ${job.employment_type}`;
+      const descriptionHeading = document.createElement('h2');
+      descriptionHeading.className = 'job-description-heading';
+      descriptionHeading.textContent = 'Full job description';
+      const description = document.createElement('p');
+      description.className = 'job-details-description';
+      description.textContent = job.description;
+
+      const actions = document.createElement('div');
+      actions.className = 'application-actions job-details-actions';
+      const applyLink = document.createElement('a');
+      applyLink.className = 'btn btn-primary';
+      applyLink.href = googleFormUrl;
+      applyLink.textContent = 'Apply Now';
+      const backLink = document.createElement('a');
+      backLink.className = 'application-back';
+      backLink.href = 'jobs.html';
+      backLink.textContent = 'Back to job search';
+      actions.append(applyLink, backLink);
+
+      detailsCard.append(title, metadata, descriptionHeading, description);
+      if (demo) {
+        const sampleNotice = document.createElement('p');
+        sampleNotice.className = 'login-notice';
+        sampleNotice.textContent = 'This is a sample listing for preview only, not a live vacancy.';
+        detailsCard.append(sampleNotice);
+      }
+      detailsCard.append(actions);
+    }
+
+    if (isDemo) {
+      const demoTitle = params.get('role');
+      const demoLocation = params.get('location');
+      const demoDescription = params.get('description');
+      if (!demoTitle || !demoLocation || !demoDescription) {
+        showUnavailable('The sample job details are incomplete. Return to search and select a sample listing again.');
+      } else {
+        renderJob({
+          title: demoTitle,
+          location: demoLocation,
+          employment_type: 'Sample listing',
+          description: demoDescription
+        }, true);
+      }
+    } else if (!jobId) {
+      showUnavailable('No job was selected. Return to search and select an opening.');
+    } else {
+      fetch('/api/jobs')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('The job service returned an error.');
+          }
+          return response.json();
+        })
+        .then(data => {
+          const job = Array.isArray(data.jobs)
+            ? data.jobs.find(item => item.id === jobId)
+            : null;
+          if (!job) {
+            showUnavailable('This job may have been removed. Return to job search to see current openings.');
+            return;
+          }
+          renderJob(job, false);
+        })
+        .catch(() => {
+          showUnavailable('Could not load this job. Please return to job search and try again.');
+        });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn about workforce management support from APEX WORKFORCE PRIVATE LIMITED.">
+  <title>Workforce Management | APEX WORKFORCE PRIVATE LIMITED</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="recruitment-page-header workforce-management-page-header">
+    <div class="container nav">
+      <a class="logo recruitment-nav-link" href="index.html">Work Force Management</a>
+    </div>
+  </header>
+  <main>
+    <section class="service-detail-page workforce-management-page">
+      <div class="container">
+        <article class="service-detail-card">
+          <div class="eyebrow">Our Services</div>
+          <h1>Workforce Management</h1>
+          <p>We support businesses with practical workforce coordination to help organize staffing needs and keep people-related processes moving.</p>
+
+          <h2>Workforce coordination support</h2>
+          <ul class="service-detail-list">
+            <li><strong>Clarify staffing needs:</strong> Outline the roles, locations, schedules, and workforce priorities for your operation.</li>
+            <li><strong>Coordinate communication:</strong> Help keep communication between your business and candidates organized.</li>
+            <li><strong>Support workforce planning:</strong> Review current and upcoming staffing needs with your team.</li>
+            <li><strong>Follow up on next steps:</strong> Coordinate updates related to hiring and workforce requirements.</li>
+          </ul>
+
+          <p>Our support is shaped around the needs you share with us. Contact us to discuss workforce coordination for your business.</p>
+          <div class="service-detail-actions">
+            <a class="btn btn-primary" href="https://wa.me/917996300242?text=Hello%20APEX%20WORKFORCE,%20I%20would%20like%20to%20discuss%20workforce%20management." target="_blank" rel="noopener noreferrer">Enquire on WhatsApp</a>
+            <a class="service-detail-back" href="index.html#services">Back to all services</a>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+  <script>
+    const pageHeader = document.querySelector('.recruitment-page-header');
+    let lastScrollY = window.scrollY;
+    let scrollScheduled = false;
+
+    window.addEventListener('scroll', () => {
+      if (scrollScheduled) return;
+
+      scrollScheduled = true;
+      window.requestAnimationFrame(() => {
+        const currentScrollY = window.scrollY;
+
+        if (currentScrollY <= 80 || currentScrollY < lastScrollY - 4) {
+          pageHeader.classList.remove('is-hidden');
+        } else if (currentScrollY > lastScrollY + 4) {
+          pageHeader.classList.add('is-hidden');
+        }
+
+        lastScrollY = currentScrollY;
+        scrollScheduled = false;
+      });
+    }, { passive: true });
+  </script>
+</body>
+</html>

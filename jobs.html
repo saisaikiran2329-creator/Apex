@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Search current job openings at APEX WORKFORCE PRIVATE LIMITED.">
+  <title>Search Jobs | APEX WORKFORCE PRIVATE LIMITED</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main>
+    <section class="application-page">
+      <div class="container">
+        <div class="jobs-search-heading">
+          <div class="eyebrow">Find your next opportunity</div>
+          <h1>Search Jobs</h1>
+          <p class="application-intro">Search openings posted by APEX WORKFORCE and apply directly for a role.</p>
+          <p class="job-total-count" id="job-total-count" role="status" aria-live="polite">Loading available jobs...</p>
+        </div>
+
+        <div class="job-search-field">
+          <label for="job-search">Search by job title, location, or employment type</label>
+          <input id="job-search" type="search" placeholder="For example: Driver, Bengaluru, Full-time" autocomplete="off">
+        </div>
+
+        <p class="job-search-status" id="job-search-status" role="status" aria-live="polite">Loading job openings...</p>
+        <div class="job-search-results" id="job-search-results"></div>
+        <a class="application-back jobs-search-back" href="index.html">Back to home</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const searchInput = document.getElementById('job-search');
+    const status = document.getElementById('job-search-status');
+    const results = document.getElementById('job-search-results');
+    let availableJobs = [];
+    let showingDemoJobs = false;
+    const demoJobs = [
+      {
+        id: 'demo-customer-support-executive',
+        title: 'Customer Support Executive',
+        location: 'Bengaluru',
+        employment_type: 'Full-time',
+        description: 'Sample role: support customers by phone and email, answer questions, and record service requests.',
+        isDemo: true
+      },
+      {
+        id: 'demo-warehouse-associate',
+        title: 'Warehouse Associate',
+        location: 'Bengaluru',
+        employment_type: 'Full-time',
+        description: 'Sample role: help receive, organize, and dispatch inventory while following workplace safety procedures.',
+        isDemo: true
+      },
+      {
+        id: 'demo-office-administrator',
+        title: 'Office Administrator',
+        location: 'Bengaluru',
+        employment_type: 'Full-time',
+        description: 'Sample role: assist with day-to-day office coordination, records, scheduling, and administrative tasks.',
+        isDemo: true
+      }
+    ];
+
+    function renderJobs() {
+      const query = searchInput.value.trim().toLocaleLowerCase();
+      const matchingJobs = availableJobs.filter(job =>
+        [job.title, job.location, job.employment_type, job.description]
+          .some(value => value.toLocaleLowerCase().includes(query))
+      );
+
+      results.replaceChildren();
+      if (matchingJobs.length === 0) {
+        status.textContent = availableJobs.length
+          ? 'No jobs match your search. Try another title or location.'
+          : 'There are no current job openings. Please check again later.';
+        return;
+      }
+
+      status.textContent = showingDemoJobs
+        ? `${matchingJobs.length} sample ${matchingJobs.length === 1 ? 'job' : 'jobs'} shown — these are examples, not live vacancies.`
+        : `${matchingJobs.length} ${matchingJobs.length === 1 ? 'job' : 'jobs'} available`;
+      matchingJobs.forEach(job => {
+        const card = document.createElement('article');
+        card.className = 'job-search-card';
+
+        if (job.isDemo) {
+          const badge = document.createElement('span');
+          badge.className = 'demo-job-badge';
+          badge.textContent = 'SAMPLE JOB · EXAMPLE ONLY';
+          card.append(badge);
+        }
+
+        const title = document.createElement('h2');
+        title.textContent = job.title;
+
+        const details = document.createElement('p');
+        details.className = 'posted-job-details';
+        details.textContent = `${job.location} · ${job.employment_type}`;
+
+        const description = document.createElement('p');
+        description.className = 'job-search-description';
+        description.textContent = job.description;
+
+        const applyLink = document.createElement('a');
+        applyLink.className = 'btn btn-primary';
+        applyLink.href = job.isDemo
+          ? `job-details.html?demo=1&role=${encodeURIComponent(job.title)}&location=${encodeURIComponent(job.location)}&description=${encodeURIComponent(job.description)}`
+          : `job-details.html?job=${encodeURIComponent(job.id)}`;
+        applyLink.textContent = 'Apply for this job';
+
+        card.append(title, details, description, applyLink);
+        results.append(card);
+      });
+    }
+
+    searchInput.addEventListener('input', renderJobs);
+
+    fetch('/api/jobs')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('The jobs service returned an error.');
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (!Array.isArray(data.jobs)) {
+          throw new Error('The jobs response was not valid.');
+        }
+        availableJobs = data.jobs.filter(job =>
+          job &&
+          typeof job.id === 'string' &&
+          typeof job.title === 'string' &&
+          typeof job.location === 'string' &&
+          typeof job.employment_type === 'string' &&
+          typeof job.description === 'string'
+        );
+        const totalJobs = availableJobs.length;
+        if (totalJobs === 0) {
+          availableJobs = demoJobs;
+          showingDemoJobs = true;
+          document.getElementById('job-total-count').textContent = 'Demo listings — examples only, not live vacancies';
+        } else {
+          document.getElementById('job-total-count').textContent =
+            `${totalJobs} ${totalJobs === 1 ? 'job' : 'jobs'} posted by APEX WORKFORCE`;
+        }
+        renderJobs();
+      })
+      .catch(() => {
+        document.getElementById('job-total-count').textContent = 'Job count unavailable';
+        status.textContent = 'Job openings could not be loaded. Please try again later.';
+      });
+  </script>
+</body>
+</html>
